@@ -43,6 +43,7 @@ int main(int argc, char **argv){
         switch (opt) {
             case 'v':
                 print_version();
+                return 0;
                 break;
             case 'd':
                 debug ++;
