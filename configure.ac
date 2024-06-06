@@ -3,7 +3,7 @@
 
 #AC_PREREQ(2.60)
 AC_INIT(can-box, 0.1, flaviu.nistor@gmail.com)
-AC_CONFIG_SRCDIR([main.c])
+AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE(can-box, main)
 
