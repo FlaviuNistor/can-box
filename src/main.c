@@ -8,28 +8,29 @@
 // added to support mem leack debugging 
 #include <mcheck.h>
 
-#define USB_SERIAL_PORT "/dev/ttyGS0"
-#define BUFFER_SIZE 256
+// add local headers
+#include "serial.h"
+
 #define VERSION "v0.0.1"
 
-static int debug;
+int debug;
+int fd;
 
-static void print_usage(char *prg)
-{
+static void print_usage(char *prg){
     fprintf(stderr, "-h help\n");
     fprintf(stderr, "-d extra debug messages\n");
     fprintf(stderr, "-v version\n");
     fprintf(stderr, "Example: %s -d \n", prg);
 }
 
-static void print_version()
-{
+static void print_version(){
     fprintf(stderr, "%s\n", VERSION);
 }
 
+
 int main(int argc, char **argv){
     int opt;
-    int fd;
+    int ret;
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read, bytes_written;
 
@@ -69,25 +70,14 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    // Configure the serial port
-    struct termios tty;
-    if (tcgetattr(fd, &tty) != 0) {
-        perror("Error from tcgetattr");
-        close(fd);
+    ret = configure_serial_port();
+    if (ret){
+        perror("Error configuring the serial port");
         return 1;
     }
-    cfsetospeed(&tty, B115200);
-    cfsetispeed(&tty, B115200);
-    tty.c_cflag |= (CLOCAL | CREAD); // Enable receiver
-    tty.c_cflag &= ~CSIZE;
-    tty.c_cflag |= CS8; // 8-bit characters
-    tty.c_cflag &= ~PARENB; // No parity bit
-    tty.c_cflag &= ~CSTOPB; // 1 stop bit
-    tty.c_cflag &= ~CRTSCTS; // No hardware flow control
-    tcsetattr(fd, TCSANOW, &tty);
 
     // Write data to the USB serial port
-    const char *message = "CAN Box connected\n";
+    const char *message = "CAN Box connected.\n";
     bytes_written = write(fd, message, strlen(message));
     if (bytes_written < 0) {
         perror("Error writing to USB serial port");
@@ -97,16 +87,9 @@ int main(int argc, char **argv){
 
     // Read data from the USB serial port
     while(1) {
-        if ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
-            if (! strncmp(buffer, "quit", (bytes_read -1)))
-                break;
-            buffer[bytes_read] = '\0'; // Null-terminate the string
-            write(fd, buffer, bytes_read);
-            printf("Received: %s", buffer);
-        }
-        if (bytes_read < 0) {
-            perror("Error reading from USB serial port");
-        }
+        ret = read_command();
+        if (ret == 2)
+            print_version();
     }
     fflush(stdout);
     close(fd);
