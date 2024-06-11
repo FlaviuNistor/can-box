@@ -14,6 +14,7 @@
 #define VERSION "v0.0.1"
 
 int debug;
+int fd;
 
 static void print_usage(char *prg){
     fprintf(stderr, "-h help\n");
@@ -29,7 +30,6 @@ static void print_version(){
 
 int main(int argc, char **argv){
     int opt;
-    int fd;
     int ret;
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read, bytes_written;

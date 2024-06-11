@@ -11,9 +11,8 @@
 // add local headers
 #include "serial.h"
 
-external int debug;
 
-static int configure_serial_port(){
+int configure_serial_port(){
         // Configure the serial port
     struct termios tty;
     if (tcgetattr(fd, &tty) != 0) {
@@ -39,16 +38,16 @@ int read_command(){
 
     if ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0){
         /* Check if the lengh is correct*/
-        if (bytes_read != buffer[0]){
+        if ((bytes_read - 1) != (buffer[0] - 0x30)){
             if (debug){
-                printf("Wrong lenght: %x. Expected: %x\n", bytes_read, buffer[0]);
+                printf("Wrong lenght: %x. Expected: %x\n", (bytes_read - 1), (buffer[0] - 0x30));
             }
             return 1;
         }
         /* Check if the ID is correct*/
-        if (buffer[1] =! ID_BYTE1 || buffer[2] =! ID_BYTE2){
+        if (('1' != buffer[1]) || ('e' != buffer[2])){
             if (debug){
-                printf("Wrong ID. BYTE1: %s BYTE2: %s\n", buffer[1], buffer[2]);
+                printf("Wrong ID. BYTE1: %x BYTE2: %x\n", buffer[1], buffer[2]);
             }
             return 1;
         }
