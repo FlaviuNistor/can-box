@@ -1,7 +1,11 @@
+#include <ctype.h>
+
 #define USB_SERIAL_PORT "/dev/ttyGS0"
 #define BUFFER_SIZE 256
-#define ID_BYTE1 '1'
-#define ID_BYTE2 'e'
+
+#define SIGNATURE_ID_BYTE 0x1e
+
+#define CMD_VERSION 0x01
 
 extern int debug;
 extern int fd;

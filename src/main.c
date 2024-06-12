@@ -52,10 +52,9 @@ int main(int argc, char **argv){
             case '?':
             case 'h':
             default:
-                    print_usage(argv[0]);
-                    return 1;
-                    break;
-                    }
+                print_usage(argv[0]);
+                return 1;
+                }
             }
 
     if (0 != (argc - optind)) {
