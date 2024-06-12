@@ -28,36 +28,54 @@ int configure_serial_port(){
     tty.c_cflag &= ~PARENB; // No parity bit
     tty.c_cflag &= ~CSTOPB; // 1 stop bit
     tty.c_cflag &= ~CRTSCTS; // No hardware flow control
+
+    //tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // Raw input
+    tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // Raw input
+    //tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Disable software flow control
+    //tty.c_oflag &= ~OPOST; // Raw output
     tcsetattr(fd, TCSANOW, &tty);
     return 0;
 }
 
 int read_command(){
+    int i;
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read, bytes_written;
 
     if ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0){
+	printf("buffer[0]: %x\n", buffer[0]);
         /* Check if the lengh is correct*/
-        if ((bytes_read - 1) != (buffer[0] - 0x30)){
+        if (bytes_read != buffer[0]){
             if (debug){
-                printf("Wrong lenght: %x. Expected: %x\n", (bytes_read - 1), (buffer[0] - 0x30));
+                printf("Wrong length: %x. Expected: %x\n", bytes_read, buffer[0]);
             }
-            return 1;
+            //return 1;
         }
         /* Check if the ID is correct*/
-        if (('1' != buffer[1]) || ('e' != buffer[2])){
+        if (buffer[1] != 0x1e){
             if (debug){
-                printf("Wrong ID. BYTE1: %x BYTE2: %x\n", buffer[1], buffer[2]);
+                printf("Wrong ID Signature. Received: %x; Expected: 0x1e\n", buffer[1]);
             }
-            return 1;
+            //return 1;
+        } else {
+            printf("Command ID: %x\n", buffer[2]);
         }
+
+        
 
         //if (! strncmp(buffer, "quit", (bytes_read -1)))
             //break;
-        buffer[bytes_read] = '\0'; // Null-terminate the string
-        write(fd, buffer, bytes_read);
-        printf("Received: %s", buffer);
-        if (buffer[3] == '1'){
+        //buffer[bytes_read] = '\0'; // Null-terminate the string
+        //write(fd, buffer, bytes_read);
+        printf("Received: ");
+	// Last byte is enter
+        for (i = 0; i < bytes_read; i++) {
+            printf("%x ", buffer[i]);
+        }
+        printf("\n");
+
+
+        if (buffer[3] == CMD_VERSION){
             return 2;
         }
     }
