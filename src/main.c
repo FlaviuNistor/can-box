@@ -10,6 +10,7 @@
 
 // add local headers
 #include "serial.h"
+#include "can.h"
 
 #define VERSION "v0.0.1"
 
