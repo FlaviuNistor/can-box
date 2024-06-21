@@ -28,6 +28,11 @@ int open_can_socket(char can_interface_number, char interface_type){
         return 1;
     }
 
+    if ((interface_type != TRANS_INTERFACE) && (interface_type != REC_INTERFACE)){
+        printf("CAN interface type not valid: %d\n", interface_type);
+        return 1;
+    }
+
     /* Create the string for the CAN interface number from string "can" and char to string 
     can_interface_number passed as a argument to the function call*/
     snprintf(number, (CAN_INTERFACE_NUMBER_MAX_DIGITS + 1), "%d", can_interface_number );
@@ -47,7 +52,7 @@ int open_can_socket(char can_interface_number, char interface_type){
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
 
-    if (interface_type == 0){
+    if (interface_type == REC_INTERFACE){
         /* create the socket*/
         if ((rec_can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
             perror("Socket");
@@ -75,7 +80,7 @@ int open_can_socket(char can_interface_number, char interface_type){
             return 1;
         }
     }
-    else if (interface_type == 1){
+    else if (interface_type == TRANS_INTERFACE){
         /* create the socket*/
         if ((trans_can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
             perror("Socket");

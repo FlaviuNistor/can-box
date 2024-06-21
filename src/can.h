@@ -11,7 +11,10 @@
 #include <libsocketcan.h>
 
 #define CAN_INTERFACE_NUMBER_MAX_DIGITS 1
-#define CAN_INTERFACE_NAME_MAX_DIGITS 4
+#define CAN_INTERFACE_NAME_MAX_DIGITS   4
+
+#define TRANS_INTERFACE  1
+#define REC_INTERFACE    0
 
 static int trans_can_socket;
 static int rec_can_socket;
