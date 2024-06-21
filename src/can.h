@@ -16,7 +16,14 @@
 #define TRANS_INTERFACE  1
 #define REC_INTERFACE    0
 
-static int trans_can_socket;
-static int rec_can_socket;
+extern unsigned int trans_can_socket;
+extern unsigned int rec_can_socket;
+
+unsigned int open_can_socket(char can_interface_number, char interface_type);
+unsigned int close_can_sockets();
+unsigned int send_can_message(struct canfd_frame * txframe);
+unsigned int read_can_message(struct canfd_frame * rxframe);
+
+
 
 #endif /* CAN_H */

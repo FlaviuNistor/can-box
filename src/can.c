@@ -15,7 +15,7 @@
 // add local headers
 #include "can.h"
 
-int open_can_socket(char can_interface_number, char interface_type){
+unsigned int open_can_socket(char can_interface_number, char interface_type){
     const int canfd_on = 1;
     struct sockaddr_can addr;
 	struct ifreq ifr;      
@@ -114,31 +114,31 @@ int open_can_socket(char can_interface_number, char interface_type){
     return 0;           
 }
 
-int close_can_sockets(){
+unsigned int close_can_sockets(){
     if ((close(rec_can_socket) < 0) || (close(trans_can_socket) < 0)) {
 		perror("Close");
 		return 1;
 	}
+    return 0;
 }
 
-int send_can_message(struct canfd_frame txframe){                   
-    if (write(trans_can_socket, &txframe, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
+unsigned int send_can_message(struct canfd_frame * txframe){                   
+    if (write(trans_can_socket, txframe, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
         perror("Write");
         return 1;
     } 
     return 0;           
 }
 
-struct canfd_frame read_can_message(){
-    struct canfd_frame rxframe;
+unsigned int read_can_message(struct canfd_frame * rxframe){
     int received_bytes;
 
     received_bytes = 0;
     // wait for frame to be received in a while(1) manner 
-    received_bytes = read(rec_can_socket, &rxframe, sizeof(struct canfd_frame));                                    
+    received_bytes = read(rec_can_socket, rxframe, sizeof(struct canfd_frame));                                    
     if (received_bytes < 0) {
         perror("Read");
         return 1;
     }
-    return rxframe;
+    return 0;
 }

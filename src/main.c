@@ -14,8 +14,10 @@
 
 #define VERSION "v0.0.1"
 
-int debug;
-int fd;
+unsigned int debug;
+unsigned int fd;
+unsigned int trans_can_socket;
+unsigned int rec_can_socket;
 
 static void print_usage(char *prg){
     fprintf(stderr, "-h help\n");
@@ -27,7 +29,6 @@ static void print_usage(char *prg){
 static void print_version(){
     fprintf(stderr, "%s\n", VERSION);
 }
-
 
 int main(int argc, char **argv){
     int opt;
