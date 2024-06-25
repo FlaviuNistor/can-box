@@ -12,7 +12,7 @@
 #include "serial.h"
 
 
-int configure_serial_port(){
+unsigned int configure_serial_port(){
         // Configure the serial port
     struct termios tty;
     if (tcgetattr(fd, &tty) != 0) {
@@ -37,7 +37,7 @@ int configure_serial_port(){
     return 0;
 }
 
-int read_command(){
+unsigned int read_command(){
     int i;
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read, bytes_written;
@@ -47,7 +47,7 @@ int read_command(){
         /* Check if the lengh is correct*/
         if (bytes_read != buffer[0]){
             if (debug){
-                printf("Wrong length: %x. Expected: %x\n", bytes_read, buffer[0]);
+                printf("Wrong length: %lx. Expected: %x\n", bytes_read, buffer[0]);
             }
             //return 1;
         }
@@ -83,4 +83,6 @@ int read_command(){
         perror("Error reading from USB serial port");
         return 1;
     }
+
+    return 0;
 }
