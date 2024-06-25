@@ -15,7 +15,9 @@
 // add local headers
 #include "can.h"
 
-unsigned int open_can_socket(char can_interface_number, char interface_type){
+unsigned int can_socket;
+
+unsigned int open_can_socket(char can_interface_number){
     const int canfd_on = 1;
     struct sockaddr_can addr;
 	struct ifreq ifr;      
@@ -25,11 +27,6 @@ unsigned int open_can_socket(char can_interface_number, char interface_type){
     
     if (can_interface_number > 1 || can_interface_number < 0){
         printf("CAN interface number not valid.\n");
-        return 1;
-    }
-
-    if ((interface_type != TRANS_INTERFACE) && (interface_type != REC_INTERFACE)){
-        printf("CAN interface type not valid: %d\n", interface_type);
         return 1;
     }
 
@@ -52,71 +49,37 @@ unsigned int open_can_socket(char can_interface_number, char interface_type){
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
 
-    if (interface_type == REC_INTERFACE){
-        /* create the socket*/
-        if ((rec_can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-            perror("Socket");
-            return 1;
-        }
-
-        /* send command to the socket*/
-        ioctl(rec_can_socket, SIOCGIFINDEX, &ifr);
-            
-        /* try to switch the socket into CAN FD mode */
-        if (setsockopt(rec_can_socket, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &canfd_on, sizeof(canfd_on))){
-            perror("CAN-FD switch");
-            return 1;
-        }
-
-        /* try to force to receive also error frames */
-        if (setsockopt(rec_can_socket, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))){
-            perror("error frame receive switch");
-            return 1;
-        }
-            
-        /* assign a instance to the socket*/
-        if (bind(rec_can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-            perror("Bind");
-            return 1;
-        }
-    }
-    else if (interface_type == TRANS_INTERFACE){
-        /* create the socket*/
-        if ((trans_can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-            perror("Socket");
-            return 1;
-        }
-
-        /* send command to the socket*/
-        ioctl(trans_can_socket, SIOCGIFINDEX, &ifr);
-            
-        /* try to switch the socket into CAN FD mode */
-        if (setsockopt(trans_can_socket, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &canfd_on, sizeof(canfd_on))){
-            perror("CAN-FD switch");
-            return 1;
-        }
-
-        /* try to force to receive also error frames */
-        if (setsockopt(trans_can_socket, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))){
-            perror("error frame receive switch");
-            return 1;
-        }
-            
-        /* assign a instance to the socket*/
-        if (bind(trans_can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-            perror("Bind");
-            return 1;
-        }        
-    }
-    else{
-        printf("Invalid interface_type.\n");
+    /* create the socket*/
+    if ((can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+        perror("Socket");
         return 1;
     }
-    return 0;           
+
+    /* send command to the socket*/
+    ioctl(can_socket, SIOCGIFINDEX, &ifr);
+            
+    /* try to switch the socket into CAN FD mode */
+    if (setsockopt(can_socket, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &canfd_on, sizeof(canfd_on))){
+        perror("CAN-FD switch");
+        return 1;
+    }
+
+    /* try to force to receive also error frames */
+    if (setsockopt(can_socket, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))){
+        perror("error frame receive switch");
+        return 1;
+    }
+            
+    /* assign a instance to the socket*/
+    if (bind(can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        perror("Bind");
+        return 1;
+    }
+    return 0;              
 }
 
-unsigned int close_can_sockets(){
-    if ((close(rec_can_socket) < 0) || (close(trans_can_socket) < 0)) {
+unsigned int close_can_socket(){
+    if ((close(can_socket) < 0)) {
 		perror("Close");
 		return 1;
 	}
@@ -124,7 +87,7 @@ unsigned int close_can_sockets(){
 }
 
 unsigned int send_can_message(struct canfd_frame * txframe){                   
-    if (write(trans_can_socket, txframe, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
+    if (write(can_socket, txframe, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
         perror("Write");
         return 1;
     } 
@@ -132,11 +95,11 @@ unsigned int send_can_message(struct canfd_frame * txframe){
 }
 
 unsigned int read_can_message(struct canfd_frame * rxframe){
-    int received_bytes;
+    unsigned int received_bytes;
 
     received_bytes = 0;
     // wait for frame to be received in a while(1) manner 
-    received_bytes = read(rec_can_socket, rxframe, sizeof(struct canfd_frame));                                    
+    received_bytes = read(can_socket, rxframe, sizeof(struct canfd_frame));                                    
     if (received_bytes < 0) {
         perror("Read");
         return 1;

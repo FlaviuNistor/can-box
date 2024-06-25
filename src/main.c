@@ -93,7 +93,7 @@ int main(int argc, char **argv){
     my_txframe.data[0] = 0xAA;
     my_txframe.data[1] = 0x55;
 
-    ret  = open_can_socket(0, TRANS_INTERFACE);
+    ret  = open_can_socket(0);
     if (ret)
         perror("Error opening socket");
     ret = send_can_message(&my_txframe);
@@ -102,12 +102,13 @@ int main(int argc, char **argv){
     else
         printf("CAN Frame not send out!\n");
     ret = read_can_message(&my_rxframe);
-    if (ret == 0)
+    if (ret == 0){
         printf("CAN Frame received\n");
         printf("ID:0x%03X!\n", my_rxframe.can_id & CAN_EFF_MASK);
         printf("[%d]", my_rxframe.len);
         for (i = 0; i < my_rxframe.len; i++)
-            printf(" %02x", (uint8_t)(frame->data[i]));
+            printf(" %02x", (frame->data[i]));
+    }
     else
         printf("CAN Frame not received!\n");   
 
