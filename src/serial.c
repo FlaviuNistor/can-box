@@ -47,7 +47,7 @@ unsigned int read_command(){
         /* Check if the lengh is correct*/
         if (bytes_read != buffer[0]){
             if (debug){
-                printf("Wrong length: %x. Expected: %x\n", bytes_read, buffer[0]);
+                printf("Wrong length: %lx. Expected: %x\n", bytes_read, buffer[0]);
             }
             //return 1;
         }
@@ -83,4 +83,6 @@ unsigned int read_command(){
         perror("Error reading from USB serial port");
         return 1;
     }
+
+    return 0;
 }
