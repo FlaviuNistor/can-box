@@ -13,7 +13,7 @@
 #define CAN_INTERFACE_NUMBER_MAX_DIGITS 1
 #define CAN_INTERFACE_NAME_MAX_DIGITS   4
 
-unsigned int open_can_socket(char can_interface_number, char interface_type);
+unsigned int open_can_socket(char can_interface_number);
 unsigned int close_can_socket();
 unsigned int send_can_message(struct canfd_frame * txframe);
 unsigned int read_can_message(struct canfd_frame * rxframe);

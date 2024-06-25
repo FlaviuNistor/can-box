@@ -107,7 +107,7 @@ int main(int argc, char **argv){
         printf("ID:0x%03X!\n", my_rxframe.can_id & CAN_EFF_MASK);
         printf("[%d]", my_rxframe.len);
         for (i = 0; i < my_rxframe.len; i++)
-            printf(" %02x", (frame->data[i]));
+            printf(" %02x", (my_rxframe.data[i]));
     }
     else
         printf("CAN Frame not received!\n");   
