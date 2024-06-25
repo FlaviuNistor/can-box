@@ -12,7 +12,7 @@
 #include "serial.h"
 
 
-int configure_serial_port(){
+unsigned int configure_serial_port(){
         // Configure the serial port
     struct termios tty;
     if (tcgetattr(fd, &tty) != 0) {
@@ -37,7 +37,7 @@ int configure_serial_port(){
     return 0;
 }
 
-int read_command(){
+unsigned int read_command(){
     int i;
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read, bytes_written;
