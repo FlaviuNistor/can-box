@@ -9,7 +9,7 @@ CFLAGS="-c -Wall -g -fPIE"
 ${CROSS_COMPILE}gcc $CFLAGS src/main.c src/serial.c src/can.c
 
 # create binary (linking)
-${CROSS_COMPILE}gcc -pie main.o serial.o can.o -lusb-1.0 -lcansocket -o can-box
+${CROSS_COMPILE}gcc -pie main.o serial.o can.o -lusb-1.0 -lsocketcan -o can-box
 
 # remove object files
 rm -f main.o serial.o can.o
