@@ -31,7 +31,6 @@ static void print_version(){
 int main(int argc, char **argv){
     int opt;
     int ret;
-    char buffer[BUFFER_SIZE];
     ssize_t bytes_written;
     struct canfd_frame my_txframe;
     struct canfd_frame my_rxframe;
@@ -104,10 +103,11 @@ int main(int argc, char **argv){
     ret = read_can_message(&my_rxframe);
     if (ret == 0){
         printf("CAN Frame received\n");
-        printf("ID:0x%03X!\n", my_rxframe.can_id & CAN_EFF_MASK);
+        printf("0x%03X ", (my_rxframe.can_id & CAN_EFF_MASK));
         printf("[%d]", my_rxframe.len);
         for (i = 0; i < my_rxframe.len; i++)
             printf(" %02x", (my_rxframe.data[i]));
+        printf("\n");
     }
     else
         printf("CAN Frame not received!\n");   
