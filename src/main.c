@@ -18,6 +18,7 @@ unsigned int debug;
 unsigned int fd;
 unsigned int trans_can_socket;
 unsigned int rec_can_socket;
+struct canfd_frame my_txframe;
 
 static void print_usage(char *prg){
     fprintf(stderr, "-h help\n");
@@ -86,11 +87,23 @@ int main(int argc, char **argv){
         return 1;
     }
 
+    my_txframe.can_id = 0x123;
+    my_txframe.len = 2;
+    my_txframe.data[0] = 0xAA;
+    my_txframe.data[1] = 0x55;
+
+    ret  = open_can_socket(0, TRANS_INTERFACE);
+    if (ret)
+        perror("Error opening socket");
+    ret = send_can_message(&my_txframe);
+    if (ret ==0)
+        printf("CAN Frame send out!\n");   
+
     // Read data from the USB serial port
     while(1) {
         ret = read_command();
         if (ret == 2)
-            print_version();
+            print_version(); 
     }
     fflush(stdout);
     close(fd);

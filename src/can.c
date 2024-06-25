@@ -108,9 +108,10 @@ unsigned int open_can_socket(char can_interface_number, char interface_type){
             return 1;
         }        
     }
-    else
+    else{
         printf("Invalid interface_type.\n");
         return 1;
+    }
     return 0;           
 }
 
