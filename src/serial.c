@@ -40,7 +40,7 @@ unsigned int configure_serial_port(){
 unsigned int read_command(){
     int i;
     char buffer[BUFFER_SIZE];
-    ssize_t bytes_read, bytes_written;
+    ssize_t bytes_read;
 
     if ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0){
 	printf("buffer[0]: %x\n", buffer[0]);

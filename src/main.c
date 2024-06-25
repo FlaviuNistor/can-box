@@ -12,13 +12,10 @@
 #include "serial.h"
 #include "can.h"
 
-#define VERSION "v0.0.1"
+#define VERSION "v0.0.2"
 
 unsigned int debug;
 unsigned int fd;
-unsigned int trans_can_socket;
-unsigned int rec_can_socket;
-struct canfd_frame my_txframe;
 
 static void print_usage(char *prg){
     fprintf(stderr, "-h help\n");
@@ -34,8 +31,10 @@ static void print_version(){
 int main(int argc, char **argv){
     int opt;
     int ret;
-    char buffer[BUFFER_SIZE];
-    ssize_t bytes_read, bytes_written;
+    ssize_t bytes_written;
+    struct canfd_frame my_txframe;
+    struct canfd_frame my_rxframe;
+    char i;
 
     // this will not affect in any way the execution but it is useful in case
     // a mem leak happens and debug is needed
@@ -87,17 +86,31 @@ int main(int argc, char **argv){
         return 1;
     }
 
+    memset(&my_rxframe, 0, sizeof(struct canfd_frame));
     my_txframe.can_id = 0x123;
     my_txframe.len = 2;
     my_txframe.data[0] = 0xAA;
     my_txframe.data[1] = 0x55;
 
-    ret  = open_can_socket(0, TRANS_INTERFACE);
+    ret  = open_can_socket(0);
     if (ret)
         perror("Error opening socket");
     ret = send_can_message(&my_txframe);
-    if (ret ==0)
-        printf("CAN Frame send out!\n");   
+    if (ret ==0 )
+        printf("CAN Frame send out!\n");
+    else
+        printf("CAN Frame not send out!\n");
+    ret = read_can_message(&my_rxframe);
+    if (ret == 0){
+        printf("CAN Frame received\n");
+        printf("0x%03X ", (my_rxframe.can_id & CAN_EFF_MASK));
+        printf("[%d]", my_rxframe.len);
+        for (i = 0; i < my_rxframe.len; i++)
+            printf(" %02x", (my_rxframe.data[i]));
+        printf("\n");
+    }
+    else
+        printf("CAN Frame not received!\n");   
 
     // Read data from the USB serial port
     while(1) {

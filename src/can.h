@@ -13,17 +13,9 @@
 #define CAN_INTERFACE_NUMBER_MAX_DIGITS 1
 #define CAN_INTERFACE_NAME_MAX_DIGITS   4
 
-#define TRANS_INTERFACE  1
-#define REC_INTERFACE    0
-
-extern unsigned int trans_can_socket;
-extern unsigned int rec_can_socket;
-
-unsigned int open_can_socket(char can_interface_number, char interface_type);
-unsigned int close_can_sockets();
+unsigned int open_can_socket(char can_interface_number);
+unsigned int close_can_socket();
 unsigned int send_can_message(struct canfd_frame * txframe);
 unsigned int read_can_message(struct canfd_frame * rxframe);
-
-
 
 #endif /* CAN_H */
