@@ -15,9 +15,9 @@
 // add local headers
 #include "can.h"
 
-unsigned int can_socket;
+unsigned int can0_socket;
 
-unsigned int open_can_socket(char can_interface_number){
+unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_number){
     const int canfd_on = 1;
     struct sockaddr_can addr;
 	struct ifreq ifr;      
@@ -50,56 +50,56 @@ unsigned int open_can_socket(char can_interface_number){
     addr.can_ifindex = ifr.ifr_ifindex;
 
     /* create the socket*/
-    if ((can_socket = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+    if ((can_socket_idx = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
         perror("Socket");
         return 1;
     }
 
     /* send command to the socket*/
-    ioctl(can_socket, SIOCGIFINDEX, &ifr);
+    ioctl(can_socket_idx, SIOCGIFINDEX, &ifr);
             
     /* try to switch the socket into CAN FD mode */
-    if (setsockopt(can_socket, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &canfd_on, sizeof(canfd_on))){
+    if (setsockopt(can_socket_idx, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &canfd_on, sizeof(canfd_on))){
         perror("CAN-FD switch");
         return 1;
     }
 
     /* try to force to receive also error frames */
-    if (setsockopt(can_socket, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))){
+    if (setsockopt(can_socket_idx, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))){
         perror("error frame receive switch");
         return 1;
     }
             
     /* assign a instance to the socket*/
-    if (bind(can_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    if (bind(can_socket_idx, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("Bind");
         return 1;
     }
     return 0;              
 }
 
-unsigned int close_can_socket(){
-    if ((close(can_socket) < 0)) {
+unsigned int close_can_socket(unsigned int can_socket_idx){
+    if ((close(can_socket_idx) < 0)) {
 		perror("Close");
 		return 1;
 	}
     return 0;
 }
 
-unsigned int send_can_message(struct canfd_frame * txframe){                   
-    if (write(can_socket, txframe, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
+unsigned int send_can_message(unsigned int can_socket_idx, struct canfd_frame * txframe){                   
+    if (write(can_socket_idx, txframe, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
         perror("Write");
         return 1;
     } 
     return 0;           
 }
 
-unsigned int read_can_message(struct canfd_frame * rxframe){
+unsigned int read_can_message(unsigned int can_socket_idx, struct canfd_frame * rxframe){
     unsigned int received_bytes;
 
     received_bytes = 0;
     // wait for frame to be received in a while(1) manner 
-    received_bytes = read(can_socket, rxframe, sizeof(struct canfd_frame));                                    
+    received_bytes = read(can_socket_idx, rxframe, sizeof(struct canfd_frame));                                    
     if (received_bytes < 0) {
         perror("Read");
         return 1;
