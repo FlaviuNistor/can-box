@@ -86,7 +86,7 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    create_log_file("test-log-file");
+    create_log_files("test-log-file");
     fprintf(log_file,"************************************************************\n");
     fprintf(log_file,"*****************CAN BOX CONNECTED**************************\n");
     fprintf(log_file,"************************************************************\n");
