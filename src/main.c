@@ -34,7 +34,6 @@ int main(int argc, char **argv){
     ssize_t bytes_written;
     struct canfd_frame my_txframe;
     struct canfd_frame my_rxframe;
-    unsigned char i;
 
     // this will not affect in any way the execution but it is useful in case
     // a mem leak happens and debug is needed
@@ -96,18 +95,15 @@ int main(int argc, char **argv){
     if (ret)
         perror("Error opening socket");
     ret = send_can_message(can0_socket, &my_txframe);
-    if (ret ==0 )
+    if (ret ==0 ){
         printf("CAN Frame send out!\n");
+        print_can_frame_to_console(&my_txframe);
+    }
     else
         printf("CAN Frame not send out!\n");
     ret = read_can_message(can0_socket, &my_rxframe);
     if (ret == 0){
-        printf("CAN Frame received\n");
-        printf("0x%03X ", (my_rxframe.can_id & CAN_EFF_MASK));
-        printf("[%d]", my_rxframe.len);
-        for (i = 0; i < my_rxframe.len; i++)
-            printf(" %02x", (my_rxframe.data[i]));
-        printf("\n");
+        print_can_frame_to_console(&my_rxframe);
     }
     else
         printf("CAN Frame not received!\n");   

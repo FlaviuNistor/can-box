@@ -21,5 +21,6 @@ unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_num
 unsigned int close_can_socket(unsigned int can_socket_idx);
 unsigned int send_can_message(unsigned int can_socket_idx, struct canfd_frame * txframe);
 unsigned int read_can_message(unsigned int can_socket_idx, struct canfd_frame * rxframe);
+void print_can_frame_to_console(struct canfd_frame * can_frame);
 
 #endif /* CAN_H */

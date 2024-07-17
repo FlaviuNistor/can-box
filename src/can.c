@@ -98,11 +98,31 @@ unsigned int read_can_message(unsigned int can_socket_idx, struct canfd_frame * 
     unsigned int received_bytes;
 
     received_bytes = 0;
-    // wait for frame to be received in a while(1) manner 
+    /* wait for frame to be received in a while(1) manner */ 
     received_bytes = read(can_socket_idx, rxframe, sizeof(struct canfd_frame));                                    
     if (received_bytes < 0) {
         perror("Read");
         return 1;
     }
     return 0;
+}
+
+void print_can_frame_to_console(struct canfd_frame * can_frame){
+    unsigned int i;
+    if (can_frame->can_id & CAN_ERR_FLAG )
+        printf("ERR Frame: ");
+    /* check if standard or extended ID should be printed */
+    if (can_frame->can_id & CAN_EFF_FLAG)
+        printf("0x%08X ", (can_frame->can_id & CAN_EFF_MASK));
+    else
+        printf("0x%03X ", (can_frame->can_id & CAN_EFF_MASK));
+    /* check if RTR frame */ 
+    if (can_frame->can_id & CAN_RTR_FLAG)
+        printf("RTR");
+    else{
+        printf("[%d]", can_frame->len);
+            for (i = 0; i < can_frame->len; i++)
+                printf(" %02x", (can_frame->data[i]));
+    }
+    printf("\n");
 }
