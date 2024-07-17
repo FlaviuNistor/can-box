@@ -11,8 +11,9 @@
 /* add local headers */
 #include "serial.h"
 #include "can.h"
+#include "log.h"
 
-#define VERSION "v0.0.2"
+#define VERSION "v0.1.0"
 
 unsigned int debug;
 unsigned int fd;
@@ -85,6 +86,11 @@ int main(int argc, char **argv){
         return 1;
     }
 
+    create_log_file("test-log-file");
+    fprintf(log_file,"************************************************************\n");
+    fprintf(log_file,"*****************CAN BOX CONNECTED**************************\n");
+    fprintf(log_file,"************************************************************\n");
+
     memset(&my_rxframe, 0, sizeof(struct canfd_frame));
     my_txframe.can_id = 0x123;
     my_txframe.len = 2;
@@ -118,5 +124,6 @@ int main(int argc, char **argv){
     }
     fflush(stdout);
     close(fd);
+    fclose(log_file);
     return 0;
 }
