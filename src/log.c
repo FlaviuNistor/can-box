@@ -28,3 +28,24 @@ unsigned int create_log_files(char * file_name){
 	}
     return 0;
 }
+
+void log_can_frame_to_dump(struct canfd_frame * can_frame){
+    unsigned int i;
+    /* check if error frame was received */
+    if (can_frame->can_id & CAN_ERR_FLAG )
+        fprintf(dump_file, "ERR Frame: ");
+    /* check if standard or extended ID should be printed */
+    if (can_frame->can_id & CAN_EFF_FLAG)
+        fprintf(dump_file, "0x%08X ", (can_frame->can_id & CAN_EFF_MASK));
+    else
+        fprintf(dump_file, "0x%03X ", (can_frame->can_id & CAN_EFF_MASK));
+    /* check if RTR frame */ 
+    if (can_frame->can_id & CAN_RTR_FLAG)
+        fprintf(dump_file, "RTR");
+    else{
+        fprintf(dump_file, "[%d]", can_frame->len);
+            for (i = 0; i < can_frame->len; i++)
+                fprintf(dump_file, " %02x", (can_frame->data[i]));
+    }
+    fprintf(dump_file, "\n");
+}

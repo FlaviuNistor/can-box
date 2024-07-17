@@ -97,6 +97,11 @@ int main(int argc, char **argv){
     my_txframe.data[0] = 0xAA;
     my_txframe.data[1] = 0x55;
 
+    log_can_frame_to_dump(&my_txframe);
+    fflush(stdout);
+    fclose(log_file);
+    fclose(dump_file);
+
     ret  = open_can_socket(can0_socket, CAN0);
     if (ret)
         perror("Error opening socket");
@@ -122,8 +127,10 @@ int main(int argc, char **argv){
             break;
         } 
     }
+    /* close all file descriptors */
     fflush(stdout);
     close(fd);
     fclose(log_file);
+    fclose(dump_file);
     return 0;
 }
