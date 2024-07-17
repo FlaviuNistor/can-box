@@ -17,7 +17,7 @@
 
 unsigned int can0_socket;
 
-unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_number){
+unsigned int open_can_socket(unsigned int * can_socket_idx, char can_interface_number){
     const int canfd_on = 1;
     struct sockaddr_can addr;
 	struct ifreq ifr;      
@@ -50,28 +50,28 @@ unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_num
     addr.can_ifindex = ifr.ifr_ifindex;
 
     /* create the socket*/
-    if ((can_socket_idx = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+    if ((*can_socket_idx = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
         perror("Socket");
         return 1;
     }
 
     /* send command to the socket */
-    ioctl(can_socket_idx, SIOCGIFINDEX, &ifr);
+    ioctl(*can_socket_idx, SIOCGIFINDEX, &ifr);
             
     /* try to switch the socket into CAN FD mode */
-    if (setsockopt(can_socket_idx, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &canfd_on, sizeof(canfd_on))){
+    if (setsockopt(*can_socket_idx, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &canfd_on, sizeof(canfd_on))){
         perror("CAN-FD switch");
         return 1;
     }
 
     /* try to force to receive also error frames */
-    if (setsockopt(can_socket_idx, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))){
+    if (setsockopt(*can_socket_idx, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))){
         perror("error frame receive switch");
         return 1;
     }
             
     /* assign a instance to the socket */
-    if (bind(can_socket_idx, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    if (bind(*can_socket_idx, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("Bind");
         return 1;
     }

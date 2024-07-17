@@ -98,11 +98,8 @@ int main(int argc, char **argv){
     my_txframe.data[1] = 0x55;
 
     log_can_frame_to_dump(&my_txframe);
-    fflush(stdout);
-    fclose(log_file);
-    fclose(dump_file);
 
-    ret  = open_can_socket(can0_socket, CAN0);
+    ret  = open_can_socket(&can0_socket, CAN0);
     if (ret)
         perror("Error opening socket");
     ret = send_can_message(can0_socket, &my_txframe);
@@ -117,7 +114,13 @@ int main(int argc, char **argv){
         print_can_frame_to_console(&my_rxframe);
     }
     else
-        printf("CAN Frame not received!\n");   
+        printf("CAN Frame not received!\n");
+
+    log_can_frame_to_dump(&my_rxframe);  
+
+    fflush(stdout);
+    fclose(log_file);
+    fclose(dump_file); 
 
     /* Read data from the USB serial port */
     while(1) {
