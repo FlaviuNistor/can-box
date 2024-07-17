@@ -12,6 +12,6 @@ extern unsigned int debug;
 extern unsigned int fd;
 
 unsigned int configure_serial_port();
-unsigned int read_command();
+int read_command();
 
 #endif /* SERIAL_H */

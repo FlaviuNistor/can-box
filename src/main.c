@@ -5,10 +5,10 @@
 #include <termios.h>
 #include <string.h>
 
-// added to support mem leack debugging 
+/* added to support mem leack debugging */ 
 #include <mcheck.h>
 
-// add local headers
+/* add local headers */
 #include "serial.h"
 #include "can.h"
 
@@ -34,10 +34,9 @@ int main(int argc, char **argv){
     ssize_t bytes_written;
     struct canfd_frame my_txframe;
     struct canfd_frame my_rxframe;
-    char i;
 
-    // this will not affect in any way the execution but it is useful in case
-    // a mem leak happens and debug is needed
+    /* this will not affect in any way the execution but it is useful in case
+    a mem leak happens and debug is needed */
     mtrace();
     
     debug = 0;
@@ -64,7 +63,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-    // Open the USB serial port
+    /* Open the USB serial port */
     fd = open(USB_SERIAL_PORT, O_RDWR | O_NOCTTY);
     if (fd < 0) {
         perror("Error opening USB serial port");
@@ -77,7 +76,7 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    // Write data to the USB serial port
+    /* Write data to the USB serial port */
     const char *message = "CAN Box connected.\n";
     bytes_written = write(fd, message, strlen(message));
     if (bytes_written < 0) {
@@ -92,31 +91,30 @@ int main(int argc, char **argv){
     my_txframe.data[0] = 0xAA;
     my_txframe.data[1] = 0x55;
 
-    ret  = open_can_socket(0);
+    ret  = open_can_socket(can0_socket, CAN0);
     if (ret)
         perror("Error opening socket");
-    ret = send_can_message(&my_txframe);
-    if (ret ==0 )
+    ret = send_can_message(can0_socket, &my_txframe);
+    if (ret ==0 ){
         printf("CAN Frame send out!\n");
+        print_can_frame_to_console(&my_txframe);
+    }
     else
         printf("CAN Frame not send out!\n");
-    ret = read_can_message(&my_rxframe);
+    ret = read_can_message(can0_socket, &my_rxframe);
     if (ret == 0){
-        printf("CAN Frame received\n");
-        printf("0x%03X ", (my_rxframe.can_id & CAN_EFF_MASK));
-        printf("[%d]", my_rxframe.len);
-        for (i = 0; i < my_rxframe.len; i++)
-            printf(" %02x", (my_rxframe.data[i]));
-        printf("\n");
+        print_can_frame_to_console(&my_rxframe);
     }
     else
         printf("CAN Frame not received!\n");   
 
-    // Read data from the USB serial port
+    /* Read data from the USB serial port */
     while(1) {
         ret = read_command();
-        if (ret == 2)
-            print_version(); 
+        if (ret == 2){
+            print_version();
+            break;
+        } 
     }
     fflush(stdout);
     close(fd);
