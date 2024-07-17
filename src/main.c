@@ -5,10 +5,10 @@
 #include <termios.h>
 #include <string.h>
 
-// added to support mem leack debugging 
+/* added to support mem leack debugging */ 
 #include <mcheck.h>
 
-// add local headers
+/* add local headers */
 #include "serial.h"
 #include "can.h"
 
@@ -35,8 +35,8 @@ int main(int argc, char **argv){
     struct canfd_frame my_txframe;
     struct canfd_frame my_rxframe;
 
-    // this will not affect in any way the execution but it is useful in case
-    // a mem leak happens and debug is needed
+    /* this will not affect in any way the execution but it is useful in case
+    a mem leak happens and debug is needed */
     mtrace();
     
     debug = 0;
@@ -63,7 +63,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-    // Open the USB serial port
+    /* Open the USB serial port */
     fd = open(USB_SERIAL_PORT, O_RDWR | O_NOCTTY);
     if (fd < 0) {
         perror("Error opening USB serial port");
@@ -76,7 +76,7 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    // Write data to the USB serial port
+    /* Write data to the USB serial port */
     const char *message = "CAN Box connected.\n";
     bytes_written = write(fd, message, strlen(message));
     if (bytes_written < 0) {
@@ -108,7 +108,7 @@ int main(int argc, char **argv){
     else
         printf("CAN Frame not received!\n");   
 
-    // Read data from the USB serial port
+    /* Read data from the USB serial port */
     while(1) {
         ret = read_command();
         if (ret == 2){

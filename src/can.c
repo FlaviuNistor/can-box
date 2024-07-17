@@ -9,10 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-// added to support mem leack debugging 
+/* added to support mem leack debugging */ 
 #include <mcheck.h>
 
-// add local headers
+/* add local headers */
 #include "can.h"
 
 unsigned int can0_socket;
@@ -23,7 +23,7 @@ unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_num
 	struct ifreq ifr;      
     char can_interface_name[CAN_INTERFACE_NAME_MAX_DIGITS + 1];
     char number[CAN_INTERFACE_NUMBER_MAX_DIGITS + 1];
-    static can_err_mask_t err_mask = 0xFFFFFFFF;   /* receive all error types*/
+    static can_err_mask_t err_mask = 0xFFFFFFFF;   /* receive all error types */
     
     if (can_interface_number > 1 || can_interface_number < 0){
         printf("CAN interface number not valid.\n");
@@ -31,12 +31,12 @@ unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_num
     }
 
     /* Create the string for the CAN interface number from string "can" and char to string 
-    can_interface_number passed as a argument to the function call*/
+    can_interface_number passed as a argument to the function call */
     snprintf(number, (CAN_INTERFACE_NUMBER_MAX_DIGITS + 1), "%d", can_interface_number );
     strcpy(can_interface_name, "can");
     strcat(can_interface_name, number);
 
-    /* get the name of the CAN interface that should be used*/ 
+    /* get the name of the CAN interface that should be used */ 
     strncpy(ifr.ifr_name, can_interface_name, IFNAMSIZ - 1);
     ifr.ifr_name[IFNAMSIZ - 1] = '\0';
     ifr.ifr_ifindex = if_nametoindex(ifr.ifr_name);
@@ -55,7 +55,7 @@ unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_num
         return 1;
     }
 
-    /* send command to the socket*/
+    /* send command to the socket */
     ioctl(can_socket_idx, SIOCGIFINDEX, &ifr);
             
     /* try to switch the socket into CAN FD mode */
@@ -70,7 +70,7 @@ unsigned int open_can_socket(unsigned int can_socket_idx, char can_interface_num
         return 1;
     }
             
-    /* assign a instance to the socket*/
+    /* assign a instance to the socket */
     if (bind(can_socket_idx, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("Bind");
         return 1;
@@ -109,6 +109,7 @@ unsigned int read_can_message(unsigned int can_socket_idx, struct canfd_frame * 
 
 void print_can_frame_to_console(struct canfd_frame * can_frame){
     unsigned int i;
+    /* check if error frame was received */
     if (can_frame->can_id & CAN_ERR_FLAG )
         printf("ERR Frame: ");
     /* check if standard or extended ID should be printed */
