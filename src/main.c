@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
-#include <termios.h>
 #include <string.h>
+#include <linux/can.h>
 
 /* added to support mem leack debugging */ 
 #include <mcheck.h>
@@ -97,7 +96,6 @@ int main(int argc, char **argv){
     my_txframe.data[0] = 0xAA;
     my_txframe.data[1] = 0x55;
 
-    log_can_frame_to_dump(&my_txframe);
 
     ret  = open_can_socket(&can0_socket, CAN0);
     if (ret)
@@ -106,17 +104,17 @@ int main(int argc, char **argv){
     if (ret ==0 ){
         printf("CAN Frame send out!\n");
         print_can_frame_to_console(&my_txframe);
+        log_can_frame_to_dump(&my_txframe);
     }
     else
         printf("CAN Frame not send out!\n");
     ret = read_can_message(can0_socket, &my_rxframe);
     if (ret == 0){
         print_can_frame_to_console(&my_rxframe);
+        log_can_frame_to_dump(&my_rxframe);
     }
     else
-        printf("CAN Frame not received!\n");
-
-    log_can_frame_to_dump(&my_rxframe);  
+        printf("CAN Frame not received!\n");  
 
     fflush(stdout);
     fclose(log_file);
