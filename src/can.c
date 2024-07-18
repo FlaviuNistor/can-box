@@ -1,14 +1,13 @@
-#include <errno.h>
-#include <getopt.h>
-#include <libgen.h>
-#include <limits.h>
-#include <sched.h>
-#include <signal.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <linux/can.h>
+#include <linux/can/raw.h>
+#include <linux/if_link.h>
+#include <libsocketcan.h>
 /* added to support mem leack debugging */ 
 #include <mcheck.h>
 

@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
-#include <termios.h>
 #include <string.h>
+#include <linux/can.h>
 
 /* added to support mem leack debugging */ 
 #include <mcheck.h>

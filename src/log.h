@@ -1,18 +1,9 @@
+#include <inttypes.h>
 #ifndef LOG_H
 #define LOG_H
 
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <linux/can.h>
-#include <linux/can/raw.h>
-#include <linux/if_link.h>
-#include <libsocketcan.h>
-
 extern FILE *log_file;
 extern FILE *dump_file;
-extern uint64_t initial_message;
 extern uint64_t initial_timestamp;
 extern uint64_t current_timestamp;
 

@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <sys/time.h>
+#include <linux/can.h>
 /* added to support mem leack debugging */ 
 #include <mcheck.h>
 
@@ -13,7 +11,6 @@ FILE *log_file = NULL;
 FILE *dump_file = NULL;
 uint64_t current_timestamp = 0;
 uint64_t initial_timestamp = 0;
-extern uint64_t initial_message = 0;
 
 unsigned int create_log_files(char * file_name){
     static char log_name[83]; /* suggested by -Wformat-overflow= */
@@ -33,10 +30,10 @@ unsigned int create_log_files(char * file_name){
     return 0;
 }
 
-void print_can_frame_to_console(struct canfd_frame * can_frame, uint64_t timestamp){
+void print_can_frame_to_console(struct canfd_frame * can_frame){
     unsigned int i;
     
-    fprintf(dump_file,"%" PRIu64 ": ", current_timestamp);
+    printf("%" PRIu64 ": ", current_timestamp);
     /* check if error frame was received */
     if (can_frame->can_id & CAN_ERR_FLAG )
         printf("ERR Frame: ");
@@ -56,7 +53,7 @@ void print_can_frame_to_console(struct canfd_frame * can_frame, uint64_t timesta
     printf("\n");
 }
 
-void log_can_frame_to_dump(struct canfd_frame * can_frame, uint64_t timestamp){
+void log_can_frame_to_dump(struct canfd_frame * can_frame){
     unsigned int i;
 
     fprintf(dump_file,"%" PRIu64 ": ", current_timestamp);
@@ -80,9 +77,10 @@ void log_can_frame_to_dump(struct canfd_frame * can_frame, uint64_t timestamp){
 }
 
 uint64_t get_current_timestamp() {
-    struct timeval te; 
+    struct timeval te;
+    uint64_t milliseconds;
     gettimeofday(&te, NULL); /* get current time */
-    uint64_t milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; /* calculate milliseconds */
+    milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; /* calculate milliseconds */
     if (initial_timestamp != 0){
         return (milliseconds - initial_timestamp);
     }
