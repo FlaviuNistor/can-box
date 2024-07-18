@@ -11,8 +11,9 @@
 /* add local headers */
 #include "serial.h"
 #include "can.h"
+#include "log.h"
 
-#define VERSION "v0.0.2"
+#define VERSION "v0.1.0"
 
 unsigned int debug;
 unsigned int fd;
@@ -85,13 +86,20 @@ int main(int argc, char **argv){
         return 1;
     }
 
+    create_log_files("test-log-file");
+    fprintf(log_file,"************************************************************\n");
+    fprintf(log_file,"*****************CAN BOX CONNECTED**************************\n");
+    fprintf(log_file,"************************************************************\n");
+
     memset(&my_rxframe, 0, sizeof(struct canfd_frame));
     my_txframe.can_id = 0x123;
     my_txframe.len = 2;
     my_txframe.data[0] = 0xAA;
     my_txframe.data[1] = 0x55;
 
-    ret  = open_can_socket(can0_socket, CAN0);
+    log_can_frame_to_dump(&my_txframe);
+
+    ret  = open_can_socket(&can0_socket, CAN0);
     if (ret)
         perror("Error opening socket");
     ret = send_can_message(can0_socket, &my_txframe);
@@ -106,7 +114,13 @@ int main(int argc, char **argv){
         print_can_frame_to_console(&my_rxframe);
     }
     else
-        printf("CAN Frame not received!\n");   
+        printf("CAN Frame not received!\n");
+
+    log_can_frame_to_dump(&my_rxframe);  
+
+    fflush(stdout);
+    fclose(log_file);
+    fclose(dump_file); 
 
     /* Read data from the USB serial port */
     while(1) {
@@ -116,7 +130,10 @@ int main(int argc, char **argv){
             break;
         } 
     }
+    /* close all file descriptors */
     fflush(stdout);
     close(fd);
+    fclose(log_file);
+    fclose(dump_file);
     return 0;
 }
