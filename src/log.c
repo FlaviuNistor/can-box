@@ -32,8 +32,10 @@ unsigned int create_log_files(char * file_name){
 
 void print_can_frame_to_console(struct canfd_frame * can_frame){
     unsigned int i;
-    
-    printf("%" PRIu64 ": ", current_timestamp);
+    struct timestamp ts;
+
+    populate_timestamp(&ts);    
+    printf("%dM%ds%dm:", ts.minutes, ts.seconds, ts.miliseconds);
     /* check if error frame was received */
     if (can_frame->can_id & CAN_ERR_FLAG )
         printf("ERR Frame: ");
@@ -55,8 +57,10 @@ void print_can_frame_to_console(struct canfd_frame * can_frame){
 
 void log_can_frame_to_dump(struct canfd_frame * can_frame){
     unsigned int i;
+    struct timestamp ts;
 
-    fprintf(dump_file,"%" PRIu64 ": ", current_timestamp);
+    populate_timestamp(&ts);    
+    fprintf(dump_file,"%dM%ds%dm:", ts.minutes, ts.seconds, ts.miliseconds);
     /* check if error frame was received */
     if (can_frame->can_id & CAN_ERR_FLAG )
         fprintf(dump_file, "ERR Frame: ");
@@ -77,10 +81,10 @@ void log_can_frame_to_dump(struct canfd_frame * can_frame){
 }
 
 uint64_t get_current_timestamp() {
-    struct timeval te;
+    struct timeval timestamp;
     uint64_t milliseconds;
-    gettimeofday(&te, NULL); /* get current time */
-    milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; /* calculate milliseconds */
+    gettimeofday(&timestamp, NULL); /* get current time */
+    milliseconds = timestamp.tv_sec*1000LL + timestamp.tv_usec/1000; /* calculate milliseconds */
     if (initial_timestamp != 0){
         return (milliseconds - initial_timestamp);
     }
@@ -88,4 +92,12 @@ uint64_t get_current_timestamp() {
         initial_timestamp = milliseconds;
         return 0;
     }
+}
+
+void populate_timestamp(struct timestamp * ts, uint64_t milisec) {
+    unsigned int remaining_millisec; 
+    ts->minutes = milisec/(1000*60);
+    remaining_millisec = milisec % (1000*60);
+    ts->seconds = remaining_millisec / 1000;
+    ts->miliseconds = remaining_millisec % 1000;  
 }
