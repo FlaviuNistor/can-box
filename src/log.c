@@ -35,7 +35,7 @@ void print_can_frame_to_console(struct canfd_frame * can_frame){
     struct timestamp ts;
 
     populate_timestamp(&ts);    
-    printf("%dM%ds%dm:", ts.minutes, ts.seconds, ts.miliseconds);
+    printf("%dm%ds%dms:", ts.minutes, ts.seconds, ts.miliseconds);
     /* check if error frame was received */
     if (can_frame->can_id & CAN_ERR_FLAG )
         printf("ERR Frame: ");
@@ -60,7 +60,7 @@ void log_can_frame_to_dump(struct canfd_frame * can_frame){
     struct timestamp ts;
 
     populate_timestamp(&ts);    
-    fprintf(dump_file,"%dM%ds%dm:", ts.minutes, ts.seconds, ts.miliseconds);
+    fprintf(dump_file,"%dm%ds%dms:", ts.minutes, ts.seconds, ts.miliseconds);
     /* check if error frame was received */
     if (can_frame->can_id & CAN_ERR_FLAG )
         fprintf(dump_file, "ERR Frame: ");
